@@ -53,9 +53,9 @@ class Trainer(object):
 
         # variable for multi-component controller
         self.init_actions = []
-        self.init_f1 = []
+        self.init_acc = []
         self.best_actions = []
-        self.best_f1 = []
+        self.best_acc = []
         self.baseline = {}
         for com in component_space_skip.values():
             self.baseline[com] = None
@@ -84,10 +84,10 @@ class Trainer(object):
             logger.info("Shared parameter mode: no retrain without share param")
             pass
 
-        if self.args.dataset in ["Cora", "Citeseer", "Pubmed"]:
+        if self.args.dataset in ["Tox21"]: # ["Citeseer", "Pubmed"]:
             self.shared = GeoCitationManagerManager(self.args)
-        elif self.args.dataset == "PPI":
-            self.shared = GeoPPIManager(self.args)
+#         elif self.args.dataset == "PPI":
+#             self.shared = GeoPPIManager(self.args)
         else:
             raise Exception(f'The dataset of {self.args.dataset} has not been included')
 
@@ -107,11 +107,11 @@ class Trainer(object):
         for action_i, actions in enumerate(init_actions):
             results = self.shared.test_with_param(actions, self.retrain_epoch)
             if results is None:  # the model is oversized
-                f1_val = 0
+                acc_val = 0
             else:
-                f1_val = results[1]
-            self.update_action(actions, action_i, f1_val)
-            self.update_best_action(actions, f1_val)
+                acc_val = results[1]
+            self.update_action(actions, action_i, acc_val)
+            self.update_best_action(actions, acc_val)
 
     def train(self):
         """
@@ -130,19 +130,19 @@ class Trainer(object):
         self.evaluate(self.best_actions)
         # self.save_model()
 
-    def update_action(self, action, action_i, f1_val):
+    def update_action(self, action, action_i, acc_val):
         # update the architectures in self.init_actions and self.best_actions
-        if len(self.init_f1) < self.args.controller_max_step:
+        if len(self.init_acc) < self.args.controller_max_step:
             self.init_actions.append(action)
-            self.init_f1.append(f1_val)
+            self.init_acc.append(acc_val)
         else:
-            if f1_val > self.init_f1[action_i]:
+            if acc_val > self.init_acc[action_i]:
                 self.init_actions[action_i] = action
-                self.init_f1[action_i] = f1_val
+                self.init_acc[action_i] = acc_val
             else:
                 pass
 
-    def update_best_action(self, action, f1_val):
+    def update_best_action(self, action, acc_val):
         # check whether there is already the same architecture
         eq_flag = False
         eq_index = 100000
