@@ -88,63 +88,63 @@ def build_args_for_tox21(args):
     args.layers_of_child_model = 2
     args.in_feats = 1024
     args.num_class = 12
-    args.in_drop = 0.25
+    args.in_drop = 0.3
     args.weight_decay = 0
-    args.lr = 0.001
+    args.lr = 0.00015
     args.param_file = "tox21.pkl"
     args.optim_file = "tox21_optim.pkl"
     return args
 
-# def build_args_for_cora(args):
-#     args.layers_of_child_model = 2
-#     args.in_feats = 1433
-#     args.num_class = 7
-#     args.in_drop = 0.6
-#     args.weight_decay = 5e-4
-#     args.lr = 0.005
-#     args.controller_lr = 3.5e-4
-#     args.controller_grad_clip = 0
-#     args.child_model_grad_clip = 0
-#     args.fromScratch_epochs = 2000 # 5000
-#     args.controller_optim = 'adam'
-#     args.batch_normal = False    # False
-#     args.param_file = "cora.pkl"
-#     args.optim_file = "cora_optim.pkl"
-#     return args
+def build_args_for_bace(args):
+    args.layers_of_child_model = 2
+    args.in_feats = 1024
+    args.num_class = 1
+    args.in_drop = 0.3
+    args.weight_decay = 0
+    args.lr = 0.001
+    args.controller_lr = 3.5e-4
+    args.controller_grad_clip = 0
+    args.child_model_grad_clip = 0
+    args.fromScratch_epochs = 100 # 5000
+    args.controller_optim = 'adam'
+    args.batch_normal = False    # False
+    args.param_file = "bace.pkl"
+    args.optim_file = "bace_optim.pkl"
+    return args
 
-# def build_args_for_citeseer(args):
-#     args.layers_of_child_model = 2
-#     args.in_feats = 3703
-#     args.num_class = 6
-#     args.in_drop = 0.6
-#     args.weight_decay = 5e-4
-#     args.lr = 0.005
-#     args.controller_lr = 3.5e-4
-#     args.controller_grad_clip = 0
-#     args.child_model_grad_clip = 0
-#     args.fromScratch_epochs = 2000 # 5000
-#     args.controller_optim = 'adam'
-#     args.batch_normal = False
-#     args.param_file = "citeseer.pkl"
-#     args.optim_file = "citeseer_optim.pkl"
-#     return args
+def build_args_for_bbbp(args):
+    args.layers_of_child_model = 2
+    args.in_feats = 1024
+    args.num_class = 1
+    args.in_drop = 0.5
+    args.weight_decay = 0
+    args.lr = 0.015
+    args.controller_lr = 3.5e-4
+    args.controller_grad_clip = 0
+    args.child_model_grad_clip = 0
+    args.fromScratch_epochs = 100 # 5000
+    args.controller_optim = 'adam'
+    args.batch_normal = False
+    args.param_file = "bbbp.pkl"
+    args.optim_file = "bbbp_optim.pkl"
+    return args
 
-# def build_args_for_pubmed(args):
-#     args.layers_of_child_model = 2
-#     args.in_feats = 500
-#     args.num_class = 3
-#     args.in_drop = 0.6
-#     args.weight_decay = 1e-3
-#     args.lr = 0.01
-#     args.controller_lr = 3.5e-4
-#     args.controller_grad_clip = 0
-#     args.child_model_grad_clip = 0
-#     args.fromScratch_epochs = 2000 # 5000
-#     args.controller_optim = 'adam'
-#     args.batch_normal = False
-#     args.param_file = "pubmed.pkl"
-#     args.optim_file = "pubmed_optim.pkl"
-#     return args
+def build_args_for_sider(args):
+    args.layers_of_child_model = 2
+    args.in_feats = 1024
+    args.num_class = 27
+    args.in_drop = 0.3
+    args.weight_decay = 0
+    args.lr = 0.0015
+    args.controller_lr = 3.5e-4
+    args.controller_grad_clip = 0
+    args.child_model_grad_clip = 0
+    args.fromScratch_epochs = 100 # 5000
+    args.controller_optim = 'adam'
+    args.batch_normal = False
+    args.param_file = "sider.pkl"
+    args.optim_file = "sider_optim.pkl"
+    return args
 
 
 def main(args):
@@ -224,10 +224,10 @@ if __name__ == "__main__":
     args = build_args()
     if args.dataset == "Tox21":
         args = build_args_for_tox21(args)
-#     elif args.dataset == "Cora":
-#         args = build_args_for_cora(args)
-#     elif args.dataset == "Citeseer":
-#         args = build_args_for_citeseer(args)
-#     elif args.dataset == "Pubmed":
-#         args = build_args_for_pubmed(args)
+    elif args.dataset == "BACE":
+        args = build_args_for_cora(args)
+    elif args.dataset == "BBBP":
+        args = build_args_for_citeseer(args)
+    elif args.dataset == "SIDER":
+        args = build_args_for_pubmed(args)
     main(args)
