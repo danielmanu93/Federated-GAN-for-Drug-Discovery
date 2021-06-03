@@ -48,7 +48,7 @@ def build_args():
 
 
     # child model
-    parser.add_argument("--dataset", type=str, default="PPI", required=False,
+    parser.add_argument("--dataset", type=str, default="Tox21", required=False,
                         help="The input dataset.")
     parser.add_argument("--epochs", type=int, default=5,
                         help="number of exploring epochs in exploring child model")
@@ -70,9 +70,9 @@ def build_args():
                         help="input feature dropout")
     parser.add_argument("--lr", type=float, default=0.005,
                         help="learning rate")
-    parser.add_argument("--param_file", type=str, default="cora_test.pkl",
+    parser.add_argument("--param_file", type=str, default="tox21_test.pkl",
                         help="learning rate")
-    parser.add_argument("--optim_file", type=str, default="opt_cora_test.pkl",
+    parser.add_argument("--optim_file", type=str, default="opt_tox21_test.pkl",
                         help="optimizer save path")
     parser.add_argument('--weight_decay', type=float, default=5e-4)
     parser.add_argument('--max_param', type=float, default=5E6)
@@ -83,69 +83,68 @@ def build_args():
     return args
 
 
-def build_args_for_ppi(args):
+def build_args_for_tox21(args):
     # args = build_args()
-    if args.layers_of_child_model < 3:
-        args.layers_of_child_model = 3
-    args.in_feats = 50
-    args.num_class = 121
-    args.in_drop = 0
+    args.layers_of_child_model = 2
+    args.in_feats = 1024
+    args.num_class = 12
+    args.in_drop = 0.25
     args.weight_decay = 0
-    args.lr = 0.005
-    args.param_file = "ppi.pkl"
-    args.optim_file = "ppi_optim.pkl"
+    args.lr = 0.001
+    args.param_file = "tox21.pkl"
+    args.optim_file = "tox21_optim.pkl"
     return args
 
-def build_args_for_cora(args):
-    args.layers_of_child_model = 2
-    args.in_feats = 1433
-    args.num_class = 7
-    args.in_drop = 0.6
-    args.weight_decay = 5e-4
-    args.lr = 0.005
-    args.controller_lr = 3.5e-4
-    args.controller_grad_clip = 0
-    args.child_model_grad_clip = 0
-    args.fromScratch_epochs = 2000 # 5000
-    args.controller_optim = 'adam'
-    args.batch_normal = False    # False
-    args.param_file = "cora.pkl"
-    args.optim_file = "cora_optim.pkl"
-    return args
+# def build_args_for_cora(args):
+#     args.layers_of_child_model = 2
+#     args.in_feats = 1433
+#     args.num_class = 7
+#     args.in_drop = 0.6
+#     args.weight_decay = 5e-4
+#     args.lr = 0.005
+#     args.controller_lr = 3.5e-4
+#     args.controller_grad_clip = 0
+#     args.child_model_grad_clip = 0
+#     args.fromScratch_epochs = 2000 # 5000
+#     args.controller_optim = 'adam'
+#     args.batch_normal = False    # False
+#     args.param_file = "cora.pkl"
+#     args.optim_file = "cora_optim.pkl"
+#     return args
 
-def build_args_for_citeseer(args):
-    args.layers_of_child_model = 2
-    args.in_feats = 3703
-    args.num_class = 6
-    args.in_drop = 0.6
-    args.weight_decay = 5e-4
-    args.lr = 0.005
-    args.controller_lr = 3.5e-4
-    args.controller_grad_clip = 0
-    args.child_model_grad_clip = 0
-    args.fromScratch_epochs = 2000 # 5000
-    args.controller_optim = 'adam'
-    args.batch_normal = False
-    args.param_file = "citeseer.pkl"
-    args.optim_file = "citeseer_optim.pkl"
-    return args
+# def build_args_for_citeseer(args):
+#     args.layers_of_child_model = 2
+#     args.in_feats = 3703
+#     args.num_class = 6
+#     args.in_drop = 0.6
+#     args.weight_decay = 5e-4
+#     args.lr = 0.005
+#     args.controller_lr = 3.5e-4
+#     args.controller_grad_clip = 0
+#     args.child_model_grad_clip = 0
+#     args.fromScratch_epochs = 2000 # 5000
+#     args.controller_optim = 'adam'
+#     args.batch_normal = False
+#     args.param_file = "citeseer.pkl"
+#     args.optim_file = "citeseer_optim.pkl"
+#     return args
 
-def build_args_for_pubmed(args):
-    args.layers_of_child_model = 2
-    args.in_feats = 500
-    args.num_class = 3
-    args.in_drop = 0.6
-    args.weight_decay = 1e-3
-    args.lr = 0.01
-    args.controller_lr = 3.5e-4
-    args.controller_grad_clip = 0
-    args.child_model_grad_clip = 0
-    args.fromScratch_epochs = 2000 # 5000
-    args.controller_optim = 'adam'
-    args.batch_normal = False
-    args.param_file = "pubmed.pkl"
-    args.optim_file = "pubmed_optim.pkl"
-    return args
+# def build_args_for_pubmed(args):
+#     args.layers_of_child_model = 2
+#     args.in_feats = 500
+#     args.num_class = 3
+#     args.in_drop = 0.6
+#     args.weight_decay = 1e-3
+#     args.lr = 0.01
+#     args.controller_lr = 3.5e-4
+#     args.controller_grad_clip = 0
+#     args.child_model_grad_clip = 0
+#     args.fromScratch_epochs = 2000 # 5000
+#     args.controller_optim = 'adam'
+#     args.batch_normal = False
+#     args.param_file = "pubmed.pkl"
+#     args.optim_file = "pubmed_optim.pkl"
+#     return args
 
 
 def main(args):
@@ -223,12 +222,12 @@ def main(args):
 
 if __name__ == "__main__":
     args = build_args()
-    if args.dataset == "PPI":
-        args = build_args_for_ppi(args)
-    elif args.dataset == "Cora":
-        args = build_args_for_cora(args)
-    elif args.dataset == "Citeseer":
-        args = build_args_for_citeseer(args)
-    elif args.dataset == "Pubmed":
-        args = build_args_for_pubmed(args)
+    if args.dataset == "Tox21":
+        args = build_args_for_tox21(args)
+#     elif args.dataset == "Cora":
+#         args = build_args_for_cora(args)
+#     elif args.dataset == "Citeseer":
+#         args = build_args_for_citeseer(args)
+#     elif args.dataset == "Pubmed":
+#         args = build_args_for_pubmed(args)
     main(args)
