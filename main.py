@@ -68,7 +68,7 @@ def build_args():
                         help="use residual connection")
     parser.add_argument("--in-drop", type=float, default=0.6,
                         help="input feature dropout")
-    parser.add_argument("--lr", type=float, default=0.005,
+    parser.add_argument("--lr", type=float, default=0.001,
                         help="learning rate")
     parser.add_argument("--param_file", type=str, default="tox21_test.pkl",
                         help="learning rate")
