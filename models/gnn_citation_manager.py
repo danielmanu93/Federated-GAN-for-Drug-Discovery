@@ -122,7 +122,7 @@ class CitationGNNManager(object):
         return self.train(actions, format)
 
     @staticmethod
-    def run_model(model, optimizer, loss_fn, data, epochs, early_stop=5, tmp_model_file="citation_testing_2.pkl",
+    def run_model(model, optimizer, loss_fn, data, epochs, early_stop=5, tmp_model_file="moleculenet_testing_2.pkl",
                   half_stop_score=0, return_best=False, cuda=True, need_early_stop=False):
 
         early_stop_manager = EarlyStop(early_stop)
