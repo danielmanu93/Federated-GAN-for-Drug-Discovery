@@ -66,7 +66,7 @@ def build_args():
                         help="multi_label or single_label task")
     parser.add_argument("--residual", default=False, action="store_true",
                         help="use residual connection")
-    parser.add_argument("--in-drop", type=float, default=0.6,
+    parser.add_argument("--in-drop", type=float, default=0.3,
                         help="input feature dropout")
     parser.add_argument("--lr", type=float, default=0.001,
                         help="learning rate")
@@ -116,7 +116,7 @@ def build_args_for_qm9(args):
     args.layers_of_child_model = 2
     args.in_feats = 1024
     args.num_class = 12
-    args.in_drop = 0.5
+    args.in_drop = 0.3
     args.weight_decay = 0
     args.lr = 0.015
     args.controller_lr = 3.5e-4
