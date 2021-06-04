@@ -125,8 +125,8 @@ def build_args_for_qm9(args):
     args.fromScratch_epochs = 100 # 5000
     args.controller_optim = 'adam'
     args.batch_normal = False
-    args.param_file = "bbbp.pkl"
-    args.optim_file = "bbbp_optim.pkl"
+    args.param_file = "qm9.pkl"
+    args.optim_file = "qm9_optim.pkl"
     return args
 
 # def build_args_for_sider(args):
