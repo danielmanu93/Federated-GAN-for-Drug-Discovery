@@ -84,9 +84,9 @@ class Trainer(object):
             logger.info("Shared parameter mode: no retrain without share param")
             pass
 
-        if self.args.dataset in ["Cora", "Citeseer", "Pubmed"]:
+        if self.args.dataset == "Tox21":
             self.shared = GeoCitationManagerManager(self.args)
-        elif self.args.dataset == "PPI":
+        elif self.args.dataset == ["QM7b", "QM9"]:
             self.shared = GeoPPIManager(self.args)
         else:
             raise Exception(f'The dataset of {self.args.dataset} has not been included')
