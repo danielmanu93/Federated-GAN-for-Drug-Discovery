@@ -95,10 +95,10 @@ def build_args_for_tox21(args):
     args.optim_file = "tox21_optim.pkl"
     return args
 
-def build_args_for_bace(args):
+def build_args_for_qm7b(args):
     args.layers_of_child_model = 2
     args.in_feats = 1024
-    args.num_class = 1
+    args.num_class = 14
     args.in_drop = 0.3
     args.weight_decay = 0
     args.lr = 0.001
@@ -108,14 +108,14 @@ def build_args_for_bace(args):
     args.fromScratch_epochs = 100 # 5000
     args.controller_optim = 'adam'
     args.batch_normal = False    # False
-    args.param_file = "bace.pkl"
-    args.optim_file = "bace_optim.pkl"
+    args.param_file = "qm7b.pkl"
+    args.optim_file = "qm7b_optim.pkl"
     return args
 
-def build_args_for_bbbp(args):
+def build_args_for_qm9(args):
     args.layers_of_child_model = 2
     args.in_feats = 1024
-    args.num_class = 1
+    args.num_class = 12
     args.in_drop = 0.5
     args.weight_decay = 0
     args.lr = 0.015
@@ -129,22 +129,22 @@ def build_args_for_bbbp(args):
     args.optim_file = "bbbp_optim.pkl"
     return args
 
-def build_args_for_sider(args):
-    args.layers_of_child_model = 2
-    args.in_feats = 1024
-    args.num_class = 27
-    args.in_drop = 0.3
-    args.weight_decay = 0
-    args.lr = 0.0015
-    args.controller_lr = 3.5e-4
-    args.controller_grad_clip = 0
-    args.child_model_grad_clip = 0
-    args.fromScratch_epochs = 100 # 5000
-    args.controller_optim = 'adam'
-    args.batch_normal = False
-    args.param_file = "sider.pkl"
-    args.optim_file = "sider_optim.pkl"
-    return args
+# def build_args_for_sider(args):
+#     args.layers_of_child_model = 2
+#     args.in_feats = 1024
+#     args.num_class = 27
+#     args.in_drop = 0.3
+#     args.weight_decay = 0
+#     args.lr = 0.0015
+#     args.controller_lr = 3.5e-4
+#     args.controller_grad_clip = 0
+#     args.child_model_grad_clip = 0
+#     args.fromScratch_epochs = 100 # 5000
+#     args.controller_optim = 'adam'
+#     args.batch_normal = False
+#     args.param_file = "sider.pkl"
+#     args.optim_file = "sider_optim.pkl"
+#     return args
 
 
 def main(args):
@@ -224,10 +224,10 @@ if __name__ == "__main__":
     args = build_args()
     if args.dataset == "Tox21":
         args = build_args_for_tox21(args)
-    elif args.dataset == "BACE":
-        args = build_args_for_cora(args)
-    elif args.dataset == "BBBP":
-        args = build_args_for_citeseer(args)
-    elif args.dataset == "SIDER":
-        args = build_args_for_pubmed(args)
+    elif args.dataset == "QM7b":
+        args = build_args_for_qm7b(args)
+    elif args.dataset == "QM9":
+        args = build_args_for_qm9(args)
+#     elif args.dataset == "SIDER":
+#         args = build_args_for_pubmed(args)
     main(args)
