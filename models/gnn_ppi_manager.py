@@ -26,11 +26,11 @@ def build_args():
                         help="number of training epochs")
     parser.add_argument("--num_train_graph", type=int, default=10,
                         help="number of graphs in each training epochs")
-    parser.add_argument("--retrain_epochs", type=int, default=200,
+    parser.add_argument("--retrain_epochs", type=int, default=100,
                         help="number of retrain epochs")
-    parser.add_argument("--in-feats", type=int, default=50,
+    parser.add_argument("--in-feats", type=int, default=1024,
                         help="number of input features")
-    parser.add_argument("--num-class", type=int, default=121,
+    parser.add_argument("--num-class", type=int, default=12,
                         help="number of output units")
     parser.add_argument("--multi_label", type=bool, default=True,
                         help="multi_label or single_label task")
