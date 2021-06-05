@@ -41,7 +41,7 @@ class CitationGNNManager(object):
 
         self.args = args
 
-        if hasattr(args, 'dataset') and args.dataset in ["tox21"]:
+        if hasattr(args, 'dataset') and args.dataset in ["qm7b, qm9"]:
             self.data = load(args)
             self.args.in_feats = self.in_feats = self.data.features.shape[1]
             self.args.num_class = self.n_classes = self.data.num_labels
