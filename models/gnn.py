@@ -5,7 +5,7 @@ from models.operators import *
 
 class GraphNet(torch.nn.Module):
 
-    def __init__(self, actions, num_feat, num_label, drop_out=0.6, multi_label=False, batch_normal=False,
+    def __init__(self, actions, num_feat, num_label, drop_out=0.3, multi_label=False, batch_normal=False,
                  residual=False, state_num=5, layer_nums=3):
         '''
         :param actions:
