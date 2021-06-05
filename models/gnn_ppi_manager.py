@@ -36,7 +36,7 @@ def build_args():
                         help="multi_label or single_label task")
     parser.add_argument("--in-drop", type=float, default=0,
                         help="input feature dropout")
-    parser.add_argument("--lr", type=float, default=0.005,
+    parser.add_argument("--lr", type=float, default=0.00015,
                         help="learning rate")
     parser.add_argument("--param_file", type=str, default="test_share.pkl",
                         help=" shared parameters save path")
