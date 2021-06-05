@@ -26,8 +26,8 @@ def build_args():
     parser.add_argument('--layers_of_child_model', type=int, default=3)
     parser.add_argument('--shared_initial_step', type=int, default=0, help ='step for child exploring')  #20, give up
     parser.add_argument('--controller_max_step', type=int, default=5, help='step for controller parameters')  #50
-    parser.add_argument('--max_epoch', type=int, default=200)
-    parser.add_argument('--derive_num_sample', type=int, default=200)
+    parser.add_argument('--max_epoch', type=int, default=100)
+    parser.add_argument('--derive_num_sample', type=int, default=100)
     parser.add_argument('--search_mode', type=str, choices=['nas', 'shared'], default='nas')
     parser.add_argument('--controller_mode', type=str, default='multi', choices=['multi'])
     parser.add_argument('--num_selectCom', type=int, default=1,
@@ -56,7 +56,7 @@ def build_args():
                         help="number of epochs if the child model is retrained")
     parser.add_argument('--noRetrain_epochs', type=int, default=5,
                         help="number of epochs if the child model is not retrained")
-    parser.add_argument('--fromScratch_epochs', type=int, default=300,
+    parser.add_argument('--fromScratch_epochs', type=int, default=100,
                         help="number of training epochs for the best model trained from scratch")
     parser.add_argument("--penalty_oversize", type=float, default=-0.01,
                         help="the reward penalty if the sampled model is oversized")
