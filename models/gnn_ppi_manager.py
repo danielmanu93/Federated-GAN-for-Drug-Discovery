@@ -17,7 +17,7 @@ from models.model_utils import process_action, calc_f1
 
 
 def build_args():
-    parser = argparse.ArgumentParser(description='PPI')
+    parser = argparse.ArgumentParser(description='Tox21')
     parser.add_argument('--random_seed', type=int, default=123)
     parser.add_argument("--cuda", type=bool, default=True, required=False,
                         help="run in cuda mode")
