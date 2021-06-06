@@ -10,6 +10,10 @@ import torch
 from dgl import DGLGraph
 from networkx.readwrite import json_graph
 
+from rdkit import Chem
+from dgllife.utils import smiles_to_graph, CanonicalAtomFeaturizer
+from dgllife.data import Tox21
+
 from models.gnn import GraphNet
 from models.gnn_manager import GNNManager
 from models.model_utils import EarlyStop, TopAverage
@@ -55,8 +59,17 @@ class PPIGNN(GNNManager):
 
     def __init__(self, args):
         super(PPIGNN, self).__init__(args)
-
-        self.group_feats, self.group_edge, self.group_labels, self.group_graphs = load_data("new_ppi.npy")
+        
+        dataset = Tox21(smiles_to_graph, CanonicalAtomFeaturizer())
+        smiles, group_graphs, group_labels = dataset
+        mols = [Chem.MolFromSmiles(s) for s in smiles]
+        featurizer = dc.feat.ConvMolFeaturizer()
+        self.group_feats = featurizer.featurize(mols)
+        self.group_edge = group_graphs[1]
+        self.group_graphs = group_graphs
+        self.group_labels = group_labels
+        
+#         self.group_feats, self.group_edge, self.group_labels, self.group_graphs = load_data("tox21.npy")
         self.early_stop_manager = EarlyStop(10)
         self.reward_manager = TopAverage(10)
 
@@ -105,7 +118,7 @@ class PPIGNN(GNNManager):
             self.shared_params = model.get_param_dict(self.shared_params, update_all)
         torch.save(self.shared_params, self.param_file)
 
-    def train(self, actions=None, dataset="ppi", format="two"):
+    def train(self, actions=None, dataset="tox21", format="two"):
         torch.manual_seed(self.args.random_seed)
         if self.args.cuda:
             torch.cuda.empty_cache()
@@ -347,106 +360,105 @@ def prepare_data(group_feats, group_graphs, group_labels, i, cuda=True):
     g.ndata['norm'] = norm.unsqueeze(1)
     return features, g, labels, n_edges
 
-
-base = os.path.split(os.path.realpath(__file__))[0]
-
-
-def load_data(save_file="train_graph_id.npy"):
-    if os.path.exists(save_file):
-        return np.load(save_file)
-    global base
-    base += "/../"
-    filepath = base + "/raw/train_graph.json"
-    graph_data = json_graph.node_link_graph(json.load(open(filepath)))
-    feats = np.load(base + "/raw/train_feats.npy")
-    labels = np.load(base + "/raw/train_labels.npy"))
-
-    feats = standarizing_features(graph_data, feats)
-
-    components = list(nx.connected_components(graph_data))
-
-    all_data = []
-    for each in components:
-        if len(each) > 2:
-            all_data.append(each)
-
-    lengths = [len(each) for each in all_data[:20]]
-    index = np.argsort(lengths)
-    new_data = []
-    for i in range(10):
-        new_data.append(list(all_data[i]))
-        new_data[-1].extend(all_data[19 - i])
-    for i in range(20, 24, 2):
-        new_data.append(list(all_data[i]))
-        new_data[-1].extend(all_data[i + 1])
-    all_data = new_data
-    max_subgraph_length = len(max(all_data, key=len))
-    id_map = {}
-    for i, comp in enumerate(all_data):
-        for j, id_ in enumerate(comp):
-            id_map[id_] = [i, j]
-
-    group_feats = build_feats(all_data, feats)
-    group_labels = build_labels(all_data, labels)
-    group_edge = build_edge_index(all_data, graph_data, id_map)
-    group_graphs = build_sub_graph(group_edge)
-    np.save(save_file, [group_feats, group_edge, group_labels, group_graphs])
-    return group_feats, group_edge, group_labels, group_graphs
+# base = os.path.split(os.path.realpath(__file__))[0]
 
 
-def build_sub_graph(group_edge):
-    sub_graphs = []
-    for edge_list in group_edge:
-        g = nx.Graph()
-        g.add_edges_from(edge_list.T)
-        sub_graphs.append(g)
-    return sub_graphs
+# def load_data(save_file="train_graph_id.npy"):
+#     if os.path.exists(save_file):
+#         return np.load(save_file)
+#     global base
+#     base += "/../"
+#     filepath = base + "/raw/train_graph.json"
+#     graph_data = json_graph.node_link_graph(json.load(open(filepath)))
+#     feats = np.load(base + "/raw/train_feats.npy")
+#     labels = np.load(base + "/raw/train_labels.npy"))
+
+#     feats = standarizing_features(graph_data, feats)
+
+#     components = list(nx.connected_components(graph_data))
+
+#     all_data = []
+#     for each in components:
+#         if len(each) > 2:
+#             all_data.append(each)
+
+#     lengths = [len(each) for each in all_data[:20]]
+#     index = np.argsort(lengths)
+#     new_data = []
+#     for i in range(10):
+#         new_data.append(list(all_data[i]))
+#         new_data[-1].extend(all_data[19 - i])
+#     for i in range(20, 24, 2):
+#         new_data.append(list(all_data[i]))
+#         new_data[-1].extend(all_data[i + 1])
+#     all_data = new_data
+#     max_subgraph_length = len(max(all_data, key=len))
+#     id_map = {}
+#     for i, comp in enumerate(all_data):
+#         for j, id_ in enumerate(comp):
+#             id_map[id_] = [i, j]
+
+#     group_feats = build_feats(all_data, feats)
+#     group_labels = build_labels(all_data, labels)
+#     group_edge = build_edge_index(all_data, graph_data, id_map)
+#     group_graphs = build_sub_graph(group_edge)
+#     np.save(save_file, [group_feats, group_edge, group_labels, group_graphs])
+#     return group_feats, group_edge, group_labels, group_graphs
 
 
-def standarizing_features(G, features_):
-    from sklearn.preprocessing import StandardScaler
-    train_ids = np.array([n for n in G.nodes() if not G.node[n]['val'] and not G.node[n]['test']])
-    train_feats = features_[train_ids]
-    scaler = StandardScaler()
-    scaler.fit(train_feats)
-    features_ = scaler.transform(features_)
+# def build_sub_graph(group_edge):
+#     sub_graphs = []
+#     for edge_list in group_edge:
+#         g = nx.Graph()
+#         g.add_edges_from(edge_list.T)
+#         sub_graphs.append(g)
+#     return sub_graphs
+
+
+# def standarizing_features(G, features_):
+#     from sklearn.preprocessing import StandardScaler
+#     train_ids = np.array([n for n in G.nodes() if not G.node[n]['val'] and not G.node[n]['test']])
+#     train_feats = features_[train_ids]
+#     scaler = StandardScaler()
+#     scaler.fit(train_feats)
+#     features_ = scaler.transform(features_)
     # features = sp.csr_matrix(features_).tolil()
 
-    return features_
+#     return features_
 
 
-def build_edge_index(all_data, graph_data, id_map):
-    group_edges = []
-    for comp in all_data:
-        left = []
-        right = []
-        for start in comp:
-            i = id_map[start][-1]
-            left.append(i)
-            right.append(i)
-            for end in graph_data[start]:
-                j = id_map[end][-1]
-                left.append(i)
-                right.append(j)
-        group_edges.append(np.array([left, right]))
-    return group_edges
+# def build_edge_index(all_data, graph_data, id_map):
+#     group_edges = []
+#     for comp in all_data:
+#         left = []
+#         right = []
+#         for start in comp:
+#             i = id_map[start][-1]
+#             left.append(i)
+#             right.append(i)
+#             for end in graph_data[start]:
+#                 j = id_map[end][-1]
+#                 left.append(i)
+#                 right.append(j)
+#         group_edges.append(np.array([left, right]))
+#     return group_edges
 
 
-def build_feats(all_data, all_feats):
-    group_feats = []
-    for comp in all_data:
-        tmp = []
-        for id_ in comp:
-            tmp.append(all_feats[id_])
-        group_feats.append(tmp)
-    return np.array(group_feats)
+# def build_feats(all_data, all_feats):
+#     group_feats = []
+#     for comp in all_data:
+#         tmp = []
+#         for id_ in comp:
+#             tmp.append(all_feats[id_])
+#         group_feats.append(tmp)
+#     return np.array(group_feats)
 
 
-def build_labels(all_data, labels):
-    group_labels = []
-    for comp in all_data:
-        tmp = []
-        for id_ in comp:
-            tmp.append(labels[str(id_)])
-        group_labels.append(tmp)
-    return np.array(group_labels)
+# def build_labels(all_data, labels):
+#     group_labels = []
+#     for comp in all_data:
+#         tmp = []
+#         for id_ in comp:
+#             tmp.append(labels[str(id_)])
+#         group_labels.append(tmp)
+#     return np.array(group_labels)
