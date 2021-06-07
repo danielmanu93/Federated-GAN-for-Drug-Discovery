@@ -16,19 +16,49 @@ from models.controller.multi_controller import state_space
 from models.model_utils import EarlyStop
 from torch_geometric.data import DataLoader
 
+import os
+import deepchem as dc
+from deepchem.molnet.load_function.molnet_loader import TransformerGenerator, _MolnetLoader
+from deepchem.data import Dataset
+from typing import List, Optional, Tuple, Union
 
-def load_data(dataset="Cora"):
-    path = osp.join(osp.dirname(osp.realpath(__file__)), '..', 'data', dataset)
-    dataset = Planetoid(path, dataset, T.NormalizeFeatures())
+QM7_MAT_UTL = "https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/qm7.mat"
+QM7_CSV_URL = "https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/qm7.csv"
+QM7B_MAT_URL = "https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/qm7b.mat"
+GDB7_URL = "https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/gdb7.tar.gz"
+QM7_TASKS = ["u0_atom"]
 
-    return dataset[0]
 
+class _QM7bLoader(_MolnetLoader):
+
+  def create_dataset(self) -> Dataset:
+    dataset_file = os.path.join(self.data_dir, "gdb7.sdf")
+    if not os.path.exists(dataset_file):
+      dc.utils.data_utils.download_url(url=GDB7_URL, dest_dir=self.data_dir)
+      dc.utils.data_utils.untargz_file(
+          os.path.join(self.data_dir, "gdb7.tar.gz"), self.data_dir)
+    loader = dc.data.SDFLoader(
+        tasks=self.tasks, featurizer=self.featurizer, sanitize=True)
+    return loader.create_dataset(dataset_file, shard_size=8192)
+
+def load_qm7b(
+    featurizer: Union[dc.feat.Featurizer, str] = dc.feat.CoulombMatrix(23),
+    splitter: Union[dc.splits.Splitter, str, None] = 'random',
+    transformers: List[Union[TransformerGenerator, str]] = ['normalization'],
+    reload: bool = True,
+    data_dir: Optional[str] = None,
+    save_dir: Optional[str] = None,
+    **kwargs
+) -> Tuple[List[str], Tuple[Dataset, ...], List[dc.trans.Transformer]]:
+    loader = _QM7bLoader(featurizer, splitter, transformers, QM7_TASKS, data_dir,
+                      save_dir, **kwargs)
+    return loader.load_dataset('qm7b', reload)
 
 class GeoCitationManagerManager(GNNManager):
     def __init__(self, args):
         super(GeoCitationManagerManager, self).__init__(args)
 
-        self.data = load_data(args.dataset)
+        self.data = load_data(args.dataset_file)
         self.args.in_feats = self.in_feats = self.data.num_features
         self.args.num_class = self.n_classes = self.data.y.max().item() + 1
         self.device = torch.device(f'cuda:{args.cuda_num}' if args.cuda else 'cpu')
