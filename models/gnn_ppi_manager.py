@@ -11,7 +11,7 @@ from dgl import DGLGraph
 from networkx.readwrite import json_graph
 
 from rdkit import Chem
-from dgllife.utils import smiles_to_graph, CanonicalAtomFeaturizer
+from dgllife.utils import smiles_to_bigraph, CanonicalAtomFeaturizer
 from dgllife.data import Tox21
 
 from models.gnn import GraphNet
@@ -55,12 +55,12 @@ def build_args():
     return args
 
 
-class PPIGNN(GNNManager):
+class Tox21GNN(GNNManager):
 
     def __init__(self, args):
-        super(PPIGNN, self).__init__(args)
+        super(Tox21GNN, self).__init__(args)
         
-        dataset = Tox21(smiles_to_graph, CanonicalAtomFeaturizer())
+        dataset = Tox21(smiles_to_bigraph, CanonicalAtomFeaturizer())
         smiles, group_graphs, group_labels = dataset
         mols = [Chem.MolFromSmiles(s) for s in smiles]
         featurizer = dc.feat.ConvMolFeaturizer()
