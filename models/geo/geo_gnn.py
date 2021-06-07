@@ -13,8 +13,8 @@ class GraphNet(BaseNet):
     not contain jump knowledge layer
     '''
 
-    def __init__(self, actions, num_feat, num_label, drop_out=0.6, multi_label=False, batch_normal=False, state_num=5,
-                 residual=False, layer_nums=3, dataset='Cora'):
+    def __init__(self, actions, num_feat, num_label, drop_out=0.3, multi_label=False, batch_normal=False, state_num=5,
+                 residual=False, layer_nums=3, dataset='qm7'):
         self.residual = residual
         self.batch_normal = batch_normal
         self.dataset = dataset
@@ -77,7 +77,7 @@ class GraphNet(BaseNet):
                 self.fcs.append(torch.nn.Linear(in_channels, out_channels))
 
     def forward(self, x, edge_index_all):
-        if self.dataset == 'PPI':
+        if self.dataset == 'Tox21':
             output = x
         else:
             # output = torch.mm(x, self.input_transform)
@@ -104,7 +104,7 @@ class GraphNet(BaseNet):
                 output = F.dropout(output, p=self.dropout, training=self.training)
                 if self.batch_normal:
                     output = self.bns[i](output)
-                if self.dataset in ['Cora', 'Citeseer', 'Pubmed']:
+                if self.dataset in ['qm7', 'Citeseer', 'Pubmed']:
                     output = layer(output, edge_index_all)
                 else:
                     output = layer(output, edge_index_all) + fc(output) # if args.dataset='PPI'
