@@ -14,7 +14,7 @@ class GraphNet(BaseNet):
     '''
 
     def __init__(self, actions, num_feat, num_label, drop_out=0.3, multi_label=False, batch_normal=False, state_num=5,
-                 residual=False, layer_nums=3, dataset='qm7'):
+                 residual=False, layer_nums=3, dataset='QM7b'):
         self.residual = residual
         self.batch_normal = batch_normal
         self.dataset = dataset
@@ -104,7 +104,7 @@ class GraphNet(BaseNet):
                 output = F.dropout(output, p=self.dropout, training=self.training)
                 if self.batch_normal:
                     output = self.bns[i](output)
-                if self.dataset in ['qm7', 'Citeseer', 'Pubmed']:
+                if self.dataset in ['QM7b', 'QM9']:
                     output = layer(output, edge_index_all)
                 else:
                     output = layer(output, edge_index_all) + fc(output) # if args.dataset='PPI'
