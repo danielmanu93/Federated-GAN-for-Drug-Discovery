@@ -65,7 +65,7 @@ class Tox21GNN(GNNManager):
         mols = [Chem.MolFromSmiles(s) for s in smiles]
         featurizer = dc.feat.ConvMolFeaturizer()
         self.group_feats = featurizer.featurize(mols)
-        self.group_edge = group_graphs[1]
+        self.group_edge = group_graphs.num_edges()
         self.group_graphs = group_graphs
         self.group_labels = group_labels
         
