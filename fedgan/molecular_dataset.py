@@ -4,6 +4,7 @@ from tqdm import tqdm
 from rdkit import Chem
 from datetime import datetime
 import time
+from Dataloader import get_loader
 
 
 class MolecularDataset():
@@ -31,8 +32,7 @@ class MolecularDataset():
     def generate(self, filename, add_h=False, filters=lambda x: True, size=None, validation=0.1, test=0.1):
         self.log('Extracting {}..'.format(filename))
 
-#         if filename.endswith('.sdf'):
-#             self.data = list(filter(lambda x: x is not None, Chem.SDMolSupplier(filename)))
+
         if filename.endswith('.pkl'):
             self.data = [Chem.MolFromSmiles(line) for line in pickle.load(open(filename, 'rb'))]
 
@@ -308,6 +308,304 @@ class MolecularDataset():
         self.test_counter = out[0]
 
         return out[1:]
+
+    # def create_non_uniform_split(args, idxs, client_number, is_train=True):
+    # logging.info("create_non_uniform_split------------------------------------------")
+    # N = len(idxs)
+    # alpha = args.partition_alpha
+    # logging.info("sample number = %d, client_number = %d" % (N, client_number))
+    # logging.info(idxs)
+    # idx_batch_per_client = [[] for _ in range(client_number)]
+    # idx_batch_per_client, min_size = partition_class_samples_with_dirichlet_distribution(N, alpha, client_number,
+    #                                                                                      idx_batch_per_client, idxs)
+    # logging.info(idx_batch_per_client)
+    # sample_num_distribution = []
+
+    # for client_id in range(client_number):
+    #     sample_num_distribution.append(len(idx_batch_per_client[client_id]))
+    #     logging.info("client_id = %d, sample_number = %d" % (client_id, len(idx_batch_per_client[client_id])))
+    # logging.info("create_non_uniform_split******************************************")
+
+    # # plot the (#client, #sample) distribution
+    # if is_train:
+    #     logging.info(sample_num_distribution)
+    #     plt.hist(sample_num_distribution)
+    #     plt.title("Sample Number Distribution")
+    #     plt.xlabel('number of samples')
+    #     plt.ylabel("number of clients")
+    #     fig_name = "x_hist.png"
+    #     fig_dir = os.path.join("./visualization", fig_name)
+    #     plt.savefig(fig_dir)
+    # return idx_batch_per_client
+
+    # def partition_data_by_sample_size(args, data_dir, client_number, uniform=True):
+
+    #train_data = self.data[self.train_idx]
+    #val_data = self.data[self.validation_idx]
+    #test_data = self.data[self.test_idx]
+
+    #train_smiles = self.smiles[self.train_idx]
+    #val_smiles = self.smiles[self.validation_idx]
+    #test_smiles = self.smiles[self.test_idx]
+
+    #S_train = self.S[self.train_idx]
+    #S_val = self.S[self.validation_idx]
+    #S_test = self.S[self.test_idx]
+
+    #X_train = self.X[self.train_idx]
+    #X_val = self.X[self.validation_idx]
+    #X_test = self.X[self.test_idx]
+
+    #D_train = self.D[self.train_idx]
+    #D_val = self.D[self.validation_idx]
+    #D_test = self.D[self.test_idx]
+
+    #F_train = self.F[self.train_idx]
+    #F_val = self.F[self.validation_idx]
+    #F_test = self.F[self.test_idx]
+
+    #Lv_train = self.data_Lv[self.train_idx]
+    #Lv_val = self.data_Lv[self.validation_idx]
+    #Lv_test = self.data_Lv[self.test_idx]
+
+    #Le_train = self.data_Le[self.train_idx]
+    #Le_val = self.data_Le[self.validation_idx]
+    #Le_test = self.data_Le[self.test_idx]
+
+    #train_adj_matrices = self.data_A[self.train_idx]
+    #val_adj_matrices = self.data_A[self.validation_idx]
+    #test_adj_matrices = self.data_A[self.test_idx]
+
+    #train_feat_matrices = self.data_F[self.train_idx]
+    #val_feat_matrices = self.data_F[self.validation_idx]
+    #test_feat_matrices = self.data_F[self.test_idx]
+
+    #train_labels = atom_labels[self.train_idx]
+    #val_labels = atom_labels[self.validation_idx]
+    #test_labels = atom_labels[self.test_idx]
+
+    # num_train_samples = len(train_data)
+    # num_val_samples = len(val_data)
+    # num_test_samples = len(test_data)
+
+    # train_idxs = list(range(num_train_samples))
+    # val_idxs = list(range(num_val_samples))
+    # test_idxs = list(range(num_test_samples))
+
+    # random.shuffle(train_idxs)
+    # random.shuffle(val_idxs)
+    # random.shuffle(test_idxs)
+
+    # partition_dicts = [None] * client_number
+
+    # if uniform:
+    #     clients_idxs_train = np.array_split(train_idxs, client_number)
+    #     clients_idxs_val = np.array_split(val_idxs, client_number)
+    #     clients_idxs_test = np.array_split(test_idxs, client_number)
+    # else:
+    #     clients_idxs_train = create_non_uniform_split(args, train_idxs, client_number, True)
+    #     clients_idxs_val = create_non_uniform_split(args, val_idxs, client_number, False)
+    #     clients_idxs_test = create_non_uniform_split(args, test_idxs, client_number, False)
+
+    # labels_of_all_clients = []
+    # for client in range(client_number):
+    #     client_train_idxs = clients_idxs_train[client]
+    #     client_val_idxs = clients_idxs_val[client]
+    #     client_test_idxs = clients_idxs_test[client]
+
+    #train_adj_matrices_client = [train_adj_matrices[idx] for idx in client_train_idxs]
+    #train_feat_matrices_client = [train_feat_matrices[idx] for idx in client_train_idxs]
+    #train_data_client = [train_data[idx] for idx in client_train_idxs]
+    #train_smiles_client = [train_smiles[idx] for idx in client_train_idxs]
+    #S_train_client = [S_train[idx] for idx in client_train_idxs]
+    #X_train_client = [X_train[idx] for idx in client_train_idxs]
+    #D_train_client = [D_train[idx] for idx in client_train_idxs]
+    #F_train_client = [F_train[idx] for idx in client_train_idxs]
+    #Lv_train_client = [Lv_train[idx] for idx in client_train_idxs]
+    #Le_train_client = [Le_train[idx] for idx in client_train_idxs]
+    #train_labels_client = [train_labels[idx] for idx in client_train_idxs]
+    #labels_of_all_clients.append(train_labels_client)
+
+    #val_adj_matrices_client = [val_adj_matrices[idx] for idx in client_val_idxs]
+    #val_feat_matrices_client = [val_feat_matrices[idx] for idx in client_val_idxs]
+    #val_data_client = [val_data[idx] for idx in client_val_idxs]
+    #val_smiles_client = [val_smiles[idx] for idx in client_val_idxs]
+    #S_val_client = [S_val[idx] for idx in client_val_idxs]
+    #X_val_client = [X_val[idx] for idx in client_val_idxs]
+    #D_val_client = [D_val[idx] for idx in client_val_idxs]
+    #F_val_client = [F_val[idx] for idx in client_val_idxs]
+    #Lv_val_client = [Lv_val[idx] for idx in client_val_idxs]
+    #Le_val_client = [Le_val[idx] for idx in client_val_idxs]
+    #val_labels_client = [val_labels[idx] for idx in client_val_idxs]
+
+    # test_adj_matrices_client = [test_adj_matrices[idx] for idx in client_test_idxs]
+    # test_feat_matrices_client = [test_feat_matrices[idx] for idx in client_test_idxs]
+    #test_data_client = [test_data[idx] for idx in client_test_idxs]
+    #test_smiles_client = [test_smiles[idx] for idx in client_test_idxs]
+    #S_test_client = [S_test[idx] for idx in client_test_idxs]
+    #X_test_client = [X_test[idx] for idx in client_test_idxs]
+    #D_test_client = [D_test[idx] for idx in client_test_idxs]
+    #F_test_client = [F_test[idx] for idx in client_test_idxs]
+    #Lv_test_client = [Lv_test[idx] for idx in client_test_idxs]
+    #Le_test_client = [Le_test[idx] for idx in client_test_idxs]
+    #test_labels_client = [test_labels[idx] for idx in client_test_idxs]
+
+    # train_dataset_client = Molecular(train_data_client, train_smiles_client, S_train_client, train_adj_matrices_client, X_train_client, D_train_client,
+    #                                  train_feature_matrices_client, Le_train_client, Lv_train_client)
+    # val_dataset_client = Molecular(val_data_client, val_smiles_client, S_val_client, val_adj_matrices_client, X_val_client, D_val_client, 
+    #                                  val_feature_matrices_client, Le_val_client, Lv_val_client)
+    # test_dataset_client = Molecular(test_data_client, test_smiles_client, S_test_client, test_adj_matrices_client, X_test_client, D_test_client,
+    #                                  test_feature_matrices_client, Le_test_client, Lv_test_client)
+
+    # partition_dict = {'train': train_dataset_client,
+    #                   'val': val_dataset_client,
+    #                   'test': test_dataset_client}
+
+    #partition_dicts[client] = partition_dict
+
+    #plot the label distribution similarity score
+    #visualize_label_distribution_similarity_score(labels_of_all_clients)
+
+    # global_data_dict = {
+    #     'train': Molecular(train_data, train_smiles, S_train, train_adj_matrices, X_train, D_train, train_feature_matrices, Le_train, Lv_train),
+    #     'val': Molecular(val_data, val_smiles, S_val, val_adj_matrices, X_val, D_val, val_feature_matrices, Le_val, Lv_val),
+    #     'test': Molecular(test_data, test_smiles, S_test, test_adj_matrices, X_test, D_test, test_feature_matrices, Le_test, Lv_test)}
+
+    # return global_data_dict, partition_dicts
+
+    # def visualize_label_distribution_similarity_score(labels_of_all_clients):
+    # label_distribution_clients = []
+    # label_num = labels_of_all_clients[0][0]
+    # for client_idx in range(len(labels_of_all_clients)):
+    #     labels_client_i = labels_of_all_clients[client_idx]
+    #     sample_number = len(labels_client_i)
+    #     active_property_count = [0.0] * label_num
+    #     for sample_index in range(sample_number):
+    #         label = labels_client_i[sample_index]
+    #         for property_index in range(len(label)):
+    #             # logging.info(label[property_index])
+    #             if label[property_index] == 1:
+    #                 active_property_count[property_index] += 1
+    #     active_property_count = [float(active_property_count[i]) for i in range(len(active_property_count))]
+    #     label_distribution_clients.append(copy.deepcopy(active_property_count))
+    # logging.info(label_distribution_clients)
+
+    # client_num = len(label_distribution_clients)
+    # label_distribution_similarity_score_matrix = np.random.random((client_num, client_num))
+
+    # for client_i in range(client_num):
+    #     label_distribution_client_i = label_distribution_clients[client_i]
+    #     for client_j in range(client_i, client_num):
+    #         label_distribution_client_j = label_distribution_clients[client_j]
+    #         logging.info(label_distribution_client_i)
+    #         logging.info(label_distribution_client_j)
+    #         a = np.array(label_distribution_client_i, dtype=np.float32)
+    #         b = np.array(label_distribution_client_j, dtype=np.float32)
+
+    #         from scipy.spatial import distance
+    #         distance = 1 - distance.cosine(a, b)
+    #         label_distribution_similarity_score_matrix[client_i][client_j] = distance
+    #         label_distribution_similarity_score_matrix[client_j][client_i] = distance
+    #     # break
+    # logging.info(label_distribution_similarity_score_matrix)
+    # plt.title("Label Distribution Similarity Score")
+    # ax = sns.heatmap(label_distribution_similarity_score_matrix, annot=True, fmt='.3f')
+    # ax.invert_yaxis()
+    # plt.show()
+
+# For centralized training
+# def get_dataloader(data_dir):
+
+#     train_dataset = Molecular(train_data, train_smiles, S_train, train_adj_matrices, X_train, D_train, train_feature_matrices, Le_train, Lv_train)
+#     vaL_dataset = Molecular(val_data, val_smiles, S_val, val_adj_matrices, X_val, D_val, val_feature_matrices, Le_val, Lv_val)
+#     test_dataset = Molecular(test_data, test_smiles, S_test, test_adj_matrices, X_test, D_test, test_feature_matrices, Le_test, Lv_test)
+    
+#     collator = WalkForestCollator(normalize_features=normalize_features)
+
+#     # IT IS VERY IMPORTANT THAT THE BATCH SIZE = 1. EACH BATCH IS AN ENTIRE MOLECULE.
+#     train_dataloader = data.DataLoader(train_dataset, batch_size=1, shuffle=True, collate_fn=collator, pin_memory=True)
+#     val_dataloader = data.DataLoader(vaL_dataset, batch_size=1, shuffle=False, collate_fn=collator, pin_memory=True)
+#     test_dataloader = data.DataLoader(test_dataset, batch_size=1, shuffle=False, collate_fn=collator, pin_memory=True)
+
+#     return train_dataloader, val_dataloader, test_dataloader
+
+# # Single process sequential
+# def load_partition_data(args, client_number, uniform=True, global_test=True):
+#     global_data_dict, partition_dicts = partition_data_by_sample_size(args, client_number, uniform)
+
+#     data_local_num_dict = dict()
+#     train_data_local_dict = dict()
+#     val_data_local_dict = dict()
+#     test_data_local_dict = dict()
+
+#     collator = WalkForestCollator(normalize_features=normalize_features) 
+
+#     # IT IS VERY IMPORTANT THAT THE BATCH SIZE = 1. EACH BATCH IS AN ENTIRE MOLECULE.
+#     train_data_global = data.DataLoader(global_data_dict['train'], batch_size=1, shuffle=True, collate_fn=collator,
+#                                         pin_memory=True)
+#     val_data_global = data.DataLoader(global_data_dict['val'], batch_size=1, shuffle=True, collate_fn=collator,
+#                                       pin_memory=True)
+#     test_data_global = data.DataLoader(global_data_dict['test'], batch_size=1, shuffle=True, collate_fn=collator,
+#                                        pin_memory=True)
+
+#     train_data_num = len(global_data_dict['train'])
+#     val_data_num = len(global_data_dict['val'])
+#     test_data_num = len(global_data_dict['test'])
+
+    # for client in range(client_number):
+    #     train_dataset_client = partition_dicts[client]['train']
+    #     val_dataset_client = partition_dicts[client]['val']
+    #     test_dataset_client = partition_dicts[client]['test']
+
+    #     data_local_num_dict[client] = len(train_dataset_client)
+    #     train_data_local_dict[client] = data.DataLoader(train_dataset_client, batch_size=1, shuffle=True,
+    #                                                     collate_fn=collator, pin_memory=True)
+    #     val_data_local_dict[client] = data.DataLoader(val_dataset_client, batch_size=1, shuffle=False,
+    #                                                   collate_fn=collator, pin_memory=True)
+    #     test_data_local_dict[client] = test_data_global if global_test else data.DataLoader(test_dataset_client,
+    #                                                                                         batch_size=1, shuffle=False,
+    #                                                                                         collate_fn=collator,
+    #                                                                                         pin_memory=True)
+
+    #     logging.info("Client idx = {}, local sample number = {}".format(client, len(train_dataset_client)))
+
+    # return train_data_num, val_data_num, test_data_num, train_data_global, val_data_global, test_data_global, \
+    #        data_local_num_dict, train_data_local_dict, val_data_local_dict, test_data_local_dict
+
+# def load_partition_data_distributed(process_id, data_dir, client_number, uniform=True):
+#     global_data_dict, partition_dicts = partition_data_by_sample_size(data_dir, client_number, uniform)
+#     train_data_num = len(global_data_dict['train'])
+
+#     collator = WalkForestCollator(normalize_features=True)
+
+#     if process_id == 0:
+#         train_data_global = data.DataLoader(global_data_dict['train'], batch_size=1, shuffle=True, collate_fn=collator,
+#                                             pin_memory=True)
+#         val_data_global = data.DataLoader(global_data_dict['val'], batch_size=1, shuffle=True, collate_fn=collator,
+#                                           pin_memory=True)
+#         test_data_global = data.DataLoader(global_data_dict['test'], batch_size=1, shuffle=True, collate_fn=collator,
+#                                            pin_memory=True)
+
+#         train_data_local = None
+#         val_data_local = None
+#         test_data_local = None
+#         local_data_num = 0
+#     else:
+#         train_dataset_local = partition_dicts[process_id - 1]['train']
+#         local_data_num = len(train_dataset_local)
+#         train_data_local = data.DataLoader(train_dataset_local, batch_size=1, shuffle=True, collate_fn=collator,
+#                                            pin_memory=True)
+#         val_data_local = data.DataLoader(partition_dicts[process_id - 1]['val'], batch_size=1, shuffle=True,
+#                                          collate_fn=collator, pin_memory=True)
+#         test_data_local = data.DataLoader(partition_dicts[process_id - 1]['test'], batch_size=1, shuffle=True,
+#                                           collate_fn=collator, pin_memory=True)
+#         train_data_global = None
+#         val_data_global = None
+#         test_data_global = None
+
+#     return train_data_num, train_data_global, val_data_global, test_data_global, local_data_num, \
+#            train_data_local, val_data_local, test_data_local
+
 
     @staticmethod
     def log(msg='', date=True):

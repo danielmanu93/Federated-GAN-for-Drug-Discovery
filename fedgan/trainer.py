@@ -11,7 +11,7 @@ from torchvision.utils import save_image
 from utils import *
 from Gen_Discr_models import Generator, Discriminator
 from molecular_dataset import MolecularDataset
-
+from fedgan.utils import classification_report
 
 class Trainer(object):
 
@@ -35,7 +35,7 @@ class Trainer(object):
         self.lambda_gp = config.lambda_gp
         self.post_method = config.post_method
 
-        self.metric = 'validity'
+        # self.metric = 'validity'
 
         # Training configurations.
         self.batch_size = config.batch_size
@@ -332,24 +332,38 @@ class Trainer(object):
         with torch.no_grad():
             mols, _, _, a, x, _, _, _, _ = self.data.next_test_batch()
             z = self.sample_z(a.shape[0])
+            z = torch.from_numpy(z)
 
             # Z-to-target
-            edges_logits, nodes_logits = self.G(z)
+            edges_logits, nodes_logits = self.G(z.float())
             
             # Postprocess with Gumbel softmax
             (edges_hat, nodes_hat) = self.postprocess((edges_logits, nodes_logits), self.post_method)
             logits_fake, features_fake = self.D(edges_hat, None, nodes_hat)
             g_loss_fake = - torch.mean(logits_fake)
 
-            # Fake Reward
+            # Preprocess with hard Gumbel
             (edges_hard, nodes_hard) = self.postprocess((edges_logits, nodes_logits), 'hard_gumbel')
             edges_hard, nodes_hard = torch.max(edges_hard, -1)[1], torch.max(nodes_hard, -1)[1]
             mols = [self.data.matrices2mol(n_.data.cpu().numpy(), e_.data.cpu().numpy(), strict=True)
                     for e_, n_ in zip(edges_hard, nodes_hard)]
 
-            # Log update
-            m0, m1 = all_scores(mols, self.data, norm=True)     # 'mols' is output of Fake Reward
-            m0 = {k: np.array(v)[np.nonzero(v)].mean() for k, v in m0.items()}
-            m0.update(m1)
-            for tag, value in m0.items():
-                log += ", {}: {:.4f}".format(tag, value)
+            # Print out testing information.
+            start_time = time.time()
+            start_iters = self.test_iters
+            num_iters = 6000
+            for i in range(start_iters, num_iters):
+                if (i+1) % self.log_step == 0:
+                    et = time.time() - start_time
+                    et = str(timedelta(seconds=et))[:-7]
+                    log = "Elapsed [{}], Iteration [{}/{}]".format(et, i+1, num_iters)
+                    # Log update
+                    m0, m1 = all_scores(mols, self.data, norm=True)     # 'mols' is output of Fake Reward
+                    m0 = {k: np.array(v)[np.nonzero(v)].mean() for k, v in m0.items()}
+                    m0.update(m1)
+                    
+                    # rep = classification_report(self.data, self.D,  )    
+
+                    for tag, value in m0.items():
+                        log += ", {}: {:.4f}".format(tag, value)
+                    print(log)

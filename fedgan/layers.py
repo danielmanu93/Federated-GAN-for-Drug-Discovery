@@ -39,7 +39,7 @@ class GraphAggregation(Module):
 
     def __init__(self, in_features, out_features, b_dim, dropout):
         super(GraphAggregation, self).__init__()
-        self.sigmoid_linear = nn.Sequential(nn.Linear(in_features+b_dim+5, out_features),
+        self.sigmoid_linear = nn.Sequential(nn.Linear(in_features+b_dim+4, out_features),
                                             nn.Sigmoid())
         self.tanh_linear = nn.Sequential(nn.Linear(in_features+b_dim+4, out_features),
                                          nn.Tanh())
