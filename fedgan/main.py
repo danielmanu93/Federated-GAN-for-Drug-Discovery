@@ -65,7 +65,7 @@ if __name__ == '__main__':
     parser.add_argument('--use_tensorboard', type=str2bool, default=False)
 
     # Directories.
-    parser.add_argument('--mol_data_dir', type=str, default='/Users/daniel/Desktop/PhD materials/Fed-GNN-GAN/fedgan/data_smiles/bace.dataset')
+    parser.add_argument('--mol_data_dir', type=str, default='/Users/daniel/Desktop/PhD materials/Fed-GNN-GAN/fedgan/data_smiles/esol.dataset')
     parser.add_argument('--log_dir', type=str, default='/Users/daniel/Desktop/PhD materials/Fed-GNN-GAN/fedgan/logs')
     parser.add_argument('--model_save_dir', type=str, default='/Users/daniel/Desktop/PhD materials/Fed-GNN-GAN/fedgan/models')
     parser.add_argument('--sample_dir', type=str, default='/Users/daniel/Desktop/PhD materials/Fed-GNN-GAN/fedgan/samples')
